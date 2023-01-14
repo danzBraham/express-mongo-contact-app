@@ -2,6 +2,8 @@ import express from "express";
 import expressLayouts from "express-ejs-layouts";
 import "./utils/db.js";
 import { Contact } from "./model/contact.js";
+import { body, validationResult, check } from "express-validator";
+import axios from "axios";
 import session from "express-session";
 import cookieParser from "cookie-parser";
 import flash from "connect-flash";
@@ -48,6 +50,36 @@ app.get("/contact/add", (req, res) => {
   });
 });
 
+app.post(
+  "/contact",
+  [
+    body("name").custom(async (value) => {
+      const duplicate = await Contact.findOne({ name: value });
+      if (duplicate) {
+        throw new Error("The Name Already Exists!");
+      }
+      return true;
+    }),
+    check("email", "Invalid Email!").isEmail(),
+    check("mobPhone", "Invalid Phone Number!").isMobilePhone("id-ID"),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.render("add-contact", {
+        layout: "layouts/main-layout.ejs",
+        title: "Add Contact",
+        errors: errors.array(),
+        contact: req.body,
+      });
+    } else {
+      await Contact.insertMany(req.body);
+      req.flash("info", "Successfully Added Contact!");
+      res.redirect("/contact");
+    }
+  }
+);
+
 app.get("/contact/:name", async (req, res) => {
   const contact = await Contact.findOne({ name: req.params.name });
 
@@ -58,9 +90,24 @@ app.get("/contact/:name", async (req, res) => {
   });
 });
 
-app.delete("/contact/:name", async (req, res) => {
-  await Contact.deleteOne({ name: req.params.name });
-  res.redirect("/contact");
+// axios
+//   .delete("http://localhost:3000/contact")
+//   .then((response) => {
+//     console.log(response.data);
+//   })
+//   .catch((error) => {
+//     console.log(error);
+//   });
+
+app.delete("/contact", async (req, res) => {
+  const contact = await findOne({ _id: req.body.id });
+  if (!contact) {
+    res.status(400).send(`<h1>400 Bad Request</h1>`);
+  } else {
+    await Contact.deleteOne({ _id: req.body.id });
+    req.flash("info", "Successfully Deleted Contact!");
+    res.redirect("/contact");
+  }
 });
 
 app.use("/", (req, res) => {
