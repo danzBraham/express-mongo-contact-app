@@ -1,0 +1,47 @@
+<% if (msg.length !==0) { %>
+<div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+  <strong><%= msg %></strong>
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+<% } %>
+
+<a href="/contact/add" class="btn btn-primary mt-2 mb-3">Add New Contact</a>
+
+<% if (contacts.length === 0) { %>
+<table class="table">
+  <% } else {%>
+  <table class="table table-striped">
+    <% } %>
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Name</th>
+        <th scope="col">Phone Number</th>
+        <th scope="col">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if (contacts.length === 0) { %>
+      <tr>
+        <td colspan="4">
+          <div class="alert alert-danger" role="alert">
+            <h3 class="text-center"><strong>Contact List is Still Empty!</strong></h3>
+          </div>
+        </td>
+      </tr>
+      <% } else { %>
+      <% contacts.forEach((contact, i) => { %>
+      <tr>
+        <th scope="row"><%= i += 1; %></th>
+        <td><%= contact.name %></td>
+        <td><%= contact.mobPhone %></td>
+        <td>
+          <a href="/contact/<%= contact.name %> ">
+            <button type="button" class="btn btn-primary">Detail</button>
+          </a>
+        </td>
+      </tr>
+      <% }); %>
+      <% } %>
+    </tbody>
+  </table>

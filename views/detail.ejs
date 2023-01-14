@@ -1,0 +1,17 @@
+<% if (!contact) { %>
+<div class="alert alert-danger my-4 text-center role=" alert">
+  <h3><strong>Contact Not Found!</strong></h3>
+  <a href="/contact" class="text-decoration-none">&laquo; Back to Contact List</a>
+</div>
+<% } else { %>
+<div class="card my-4" style="width: 18rem;">
+  <div class="card-body">
+    <h5 class="card-title"><%= contact.name %></h5>
+    <h6 class="card-subtitle mb-2 text-muted"><%= contact.mobPhone %></h6>
+    <p class="card-text"><%= contact.email %></p>
+    <a href="/contact/edit/<%= contact.name %>" class="btn btn-info badge">Edit</a>
+    <a href="/contact/<%= contact.name %>" class="btn btn-danger badge">Delete</a>
+    <a href="/contact" class="card-link d-block mt-3">&laquo; Back to Contact List</a>
+  </div>
+</div>
+<% } %>
