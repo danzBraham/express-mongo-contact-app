@@ -3,7 +3,7 @@ import expressLayouts from "express-ejs-layouts";
 import "./utils/db.js";
 import { Contact } from "./model/contact.js";
 import { body, validationResult, check } from "express-validator";
-import axios from "axios";
+import methodOverride from "method-override";
 import session from "express-session";
 import cookieParser from "cookie-parser";
 import flash from "connect-flash";
@@ -16,6 +16,7 @@ app.set("view engine", "ejs");
 
 // Third party middleware
 app.use(expressLayouts);
+app.use(methodOverride("_method"));
 app.use(cookieParser("keyboard cat"));
 app.use(
   session({
@@ -80,6 +81,66 @@ app.post(
   }
 );
 
+app.delete("/contact", async (req, res) => {
+  const contact = await Contact.findOne({ _id: req.body.id });
+  if (!contact) {
+    res.status(400).send(`<h1>400 Bad Request</h1>`);
+  } else {
+    await Contact.deleteOne({ _id: req.body.id });
+    req.flash("info", "Successfully Deleted Contact!");
+    res.redirect("/contact");
+  }
+});
+
+app.get("/contact/edit/:name", async (req, res) => {
+  const contact = await Contact.findOne({ name: req.params.name });
+
+  res.render("edit-contact", {
+    layout: "layouts/main-layout.ejs",
+    title: "Edit Contact",
+    contact,
+  });
+});
+
+app.put(
+  "/contact",
+  [
+    body("name").custom(async (value, { req }) => {
+      const duplicate = await Contact.findOne({ name: value });
+      if (value !== req.body.oldName && duplicate) {
+        throw new Error("The Name Already Exists!");
+      }
+      return true;
+    }),
+    check("email", "Invalid Email!").isEmail(),
+    check("mobPhone", "Invalid Phone Number!").isMobilePhone("id-ID"),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.render("edit-contact", {
+        layout: "layouts/main-layout.ejs",
+        title: "Edit Contact",
+        errors: errors.array(),
+        contact: req.body,
+      });
+    } else {
+      await Contact.updateOne(
+        { _id: req.body._id },
+        {
+          $set: {
+            name: req.body.name,
+            email: req.body.email,
+            mobPhone: req.body.mobPhone,
+          },
+        }
+      );
+      req.flash("info", "Successfully Updated Contact!");
+      res.redirect("/contact");
+    }
+  }
+);
+
 app.get("/contact/:name", async (req, res) => {
   const contact = await Contact.findOne({ name: req.params.name });
 
@@ -88,26 +149,6 @@ app.get("/contact/:name", async (req, res) => {
     title: "Contact Details",
     contact,
   });
-});
-
-// axios
-//   .delete("http://localhost:3000/contact")
-//   .then((response) => {
-//     console.log(response.data);
-//   })
-//   .catch((error) => {
-//     console.log(error);
-//   });
-
-app.delete("/contact", async (req, res) => {
-  const contact = await findOne({ _id: req.body.id });
-  if (!contact) {
-    res.status(400).send(`<h1>400 Bad Request</h1>`);
-  } else {
-    await Contact.deleteOne({ _id: req.body.id });
-    req.flash("info", "Successfully Deleted Contact!");
-    res.redirect("/contact");
-  }
 });
 
 app.use("/", (req, res) => {

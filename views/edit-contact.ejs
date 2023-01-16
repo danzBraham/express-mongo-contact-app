@@ -9,21 +9,23 @@
 <div class="container mt-4">
   <div class="row">
     <div class="col-lg-5 mx-auto bg-dark-subtle p-4 rounded-4">
-      <form method="POST" action="/contact" autocomplete="off">
+      <form method="POST" action="/contact?_method=PUT" autocomplete="off">
         <div class="mb-3">
           <label for="name" class="form-label">Name</label>
-          <input type="text" class="form-control" id="name" name="name" required value="<%= '' || contact.name %>">
+          <input type="hidden" name="_id" value="<%= contact._id %>">
+          <input type="hidden" name="oldName" value="<%= contact.oldName || contact.name %>">
+          <input type="text" class="form-control" id="name" name="name" required value="<%= contact.name %>">
         </div>
         <div class="mb-3">
           <label for="email" class="form-label">Email</label>
-          <input type="email" class="form-control" id="email" name="email" required value="<%= '' || contact.email %>">
+          <input type="email" class="form-control" id="email" name="email" required value="<%= contact.email %>">
         </div>
         <div class="mb-3">
           <label for="mobPhone" class="form-label">Phone Number</label>
           <input type="text" class="form-control" id="mobPhone" name="mobPhone" required
-            value="<%= '' || contact.mobPhone %>">
+            value="<%= contact.mobPhone %>">
         </div>
-        <button type="submit" class="btn btn-primary">Add Contact</button>
+        <button type="submit" class="btn btn-primary">Edit Contact</button>
       </form>
     </div>
   </div>

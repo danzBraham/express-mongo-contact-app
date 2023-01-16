@@ -10,7 +10,11 @@
     <h6 class="card-subtitle mb-2 text-muted"><%= contact.mobPhone %></h6>
     <p class="card-text"><%= contact.email %></p>
     <a href="/contact/edit/<%= contact.name %>" class="btn btn-info badge">Edit</a>
-    <a href="/contact/<%= contact._id %>" class="btn btn-danger badge">Delete</a>
+    <form action="/contact?_method=DELETE" method="POST" class="d-inline">
+      <input type="hidden" name="id" value="<%= contact._id %>">
+      <button type="submit" class="btn btn-danger badge"
+        onclick="return confirm('Are u sure want delete this data?')">Delete</button>
+    </form>
     <a href="/contact" class="card-link d-block mt-3">&laquo; Back to Contact List</a>
   </div>
 </div>
